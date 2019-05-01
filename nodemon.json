@@ -1,0 +1,7 @@
+{
+  "watch": ["./src", "./public"],
+  "execMap": {
+    "js": "node ./src/server.js"
+  },
+  "ext": "twig,njk,html,js,ts,css,scss"
+}

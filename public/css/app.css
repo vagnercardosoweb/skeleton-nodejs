@@ -1,0 +1,12 @@
+.vc-welcome {
+  display: flex;
+  height: 100vh;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.vc-welcome .jumbotron {
+  background: #6272a4;
+  color: #ffffff;
+}

@@ -5,7 +5,18 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="theme-color" content="#6272a4">
+    
     <title>VCWeb Networks</title>
+    
+    {# Rebots #}
+    <meta name="robots" content="index, follow"/>
+    
+    {# Manifest #}
+    <link rel="manifest" href="/manifest.json"/>
+    
+    {# Favicon #}
+    <link rel="shortcut icon" type="image/png" href="/icons/icon-32x32.png">
     
     {# Stylesheet #}
     <link
@@ -16,6 +27,11 @@
     >
     <link href="/css/app.css" rel="stylesheet"/>
     {% block style %}{% endblock %}
+    
+    <!--[if lt IE 9]
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
   </head>
   <body>
     {# Content #}

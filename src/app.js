@@ -85,8 +85,8 @@ class App {
 
   _initView () {
     this._app.use(express.static(configFolder.PUBLIC))
-    this._app.set('view engine', configView.engine)
-    this._app.set('views', configView.path);
+    this._app.set('views', configView.path)
+    this._app.set('view engine', configView.engine);
 
     // Custom functions and filters
     [...configView.functions, ...configView.filters].forEach(item => {

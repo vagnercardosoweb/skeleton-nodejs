@@ -3,15 +3,18 @@ require('dotenv').config()
 
 // Global
 const express = require('express')
+const http = require('http')
+const io = require('socket.io')
 const twig = require('twig')
 
 // Configs
 const configView = require('./config/view')
 const configFolder = require('./config/folder')
 
-// Middlewares
-const headers = require('./middlewares/headers')
-const methodOverride = require('./middlewares/methodOverride')
+// Middleware
+const corsMiddleware = require('./middlewares/cors')
+const methodOverrideMiddleware = require('./middlewares/methodOverride')
+const envMiddleware = require('./middlewares/env')
 
 // Routes
 const webRoutes = require('./routes/web')
@@ -19,30 +22,37 @@ const apiRoutes = require('./routes/api')
 
 class App {
   constructor () {
-    this._app = express()
+    this.app = express()
+    this.server = http.createServer(this.app)
+    this.io = io(this.server)
   }
 
   init () {
-    this._initMiddleware()
-    this._initView()
-    this._initRoutes()
-    this._init()
+    this.initMiddleware()
+    this.initTwig()
+    this.initRoutes()
+    this.listen()
   }
 
-  _initMiddleware () {
-    this._app.use(express.json())
-    this._app.use(express.urlencoded({ extended: false }))
-    this._app.use(headers)
-    this._app.use(methodOverride)
+  initMiddleware () {
+    this.app.use(envMiddleware)
+    this.app.use(corsMiddleware)
+    this.app.use(methodOverrideMiddleware)
+    this.app.use(express.json())
+    this.app.use(express.urlencoded({ extended: false }))
+    this.app.use((req, res, next) => {
+      req.io = this.io
+      next()
+    })
   }
 
-  _initRoutes () {
+  initRoutes () {
     // Routes
-    this._app.use(webRoutes)
-    this._app.use('/api', apiRoutes)
+    this.app.use(webRoutes)
+    this.app.use('/api', apiRoutes)
 
     // Http error
-    this._app.use((request, response, next) => {
+    this.app.use((request, response, next) => {
       let error = {
         status: 404,
         message: 'Error 404 (Not Found)',
@@ -51,8 +61,8 @@ class App {
         path: request.path,
         originalUrl: request.originalUrl,
         cookies: request.cookies,
-        headers: request.headers,
-        body: request.body
+        headers: request.cors,
+        body: request.body,
       }
 
       // Method override
@@ -60,7 +70,7 @@ class App {
         error = {
           ...error,
           status: 405,
-          message: 'Error 405 (Method Not Allowed)'
+          message: 'Error 405 (Method Not Allowed)',
         }
       }
 
@@ -83,10 +93,10 @@ class App {
     })
   }
 
-  _initView () {
-    this._app.use(express.static(configFolder.PUBLIC))
-    this._app.set('views', configView.path)
-    this._app.set('view engine', configView.engine);
+  initTwig () {
+    this.app.use(express.static(configFolder.PUBLIC))
+    this.app.set('views', configView.path)
+    this.app.set('view engine', configView.engine);
 
     // Custom functions and filters
     [...configView.functions, ...configView.filters].forEach(item => {
@@ -100,8 +110,8 @@ class App {
     })
   }
 
-  _init () {
-    this._app.listen(process.env.PORT || 3000)
+  listen () {
+    this.server.listen(process.env.PORT || 3000)
   }
 }
 

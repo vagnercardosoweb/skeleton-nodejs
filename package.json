@@ -11,7 +11,7 @@
     "mysql",
     "vcwebnetworks"
   ],
-  "main": "./src/server.js",
+  "main": "./src/index.js",
   "homepage": "https://github.com/vagnercardosoweb/nodejs-skeleton",
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon",
-    "start": "node ./src/server.js"
+    "start": "node ./src/index.js"
   },
   "dependencies": {
     "dotenv": "^8.0.0",

@@ -61,8 +61,8 @@ class App {
         path: request.path,
         originalUrl: request.originalUrl,
         cookies: request.cookies,
-        headers: request.cors,
-        body: request.body,
+        headers: request.headers,
+        body: request.body
       }
 
       // Method override

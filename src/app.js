@@ -70,7 +70,7 @@ class App {
         error = {
           ...error,
           status: 405,
-          message: 'Error 405 (Method Not Allowed)',
+          message: 'Error 405 (Method Not Allowed)'
         }
       }
 
@@ -111,7 +111,7 @@ class App {
   }
 
   listen () {
-    this.server.listen(process.env.PORT || 3000)
+    this.server.listen(process.env.PORT || 3333)
   }
 }
 

@@ -1,0 +1,17 @@
+import mongoose from 'mongoose';
+
+const UserSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    created_at: { type: Date, required: true, default: Date.now() },
+    update_at: { type: Date, default: null },
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+export default mongoose.model('User', UserSchema);

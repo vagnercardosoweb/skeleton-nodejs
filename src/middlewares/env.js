@@ -1,21 +1,21 @@
-const path = require('path')
-const fs = require('fs')
+import { resolve } from 'path';
+import { access, readFile, writeFile } from 'fs';
 
-module.exports = async (req, res, next) => {
-  const envPath = path.resolve(__dirname, '..', '..', '.env')
-  const envExamplePath = path.resolve(__dirname, '..', '..', '.env-example')
+export default async (req, res, next) => {
+  const envPath = resolve(__dirname, '..', '..', '.env');
+  const envExamplePath = resolve(__dirname, '..', '..', '.env-example');
 
-  await fs.access(envPath, 'utf8', async (err) => {
-    if (err) {
-      await fs.readFile(envExamplePath, async (err, content) => {
-        if (!err) {
-          await fs.writeFile(envPath, content, () => {})
+  await access(envPath, 'utf8', async accessError => {
+    if (accessError) {
+      await readFile(envExamplePath, async (readError, content) => {
+        if (!readError) {
+          await writeFile(envPath, content, () => {});
         } else {
-          console.log(err)
+          console.error(readError);
         }
-      })
+      });
     }
-  })
+  });
 
-  next()
-}
+  next();
+};

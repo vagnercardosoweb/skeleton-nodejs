@@ -1,3 +1,3 @@
-const app = require('./app')
+import app from './app';
 
-app.init()
+app.init();

@@ -1,13 +1,32 @@
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('user', {
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    email: DataTypes.STRING
-  }, {})
+import Sequelize, { Model } from 'sequelize';
+import Password from '../lib/Password';
 
-  User.associate = function (models) {
-    // associations can be defined here
+class User extends Model {
+  static init(sequelize) {
+    super.init(
+      {
+        name: Sequelize.STRING,
+        email: Sequelize.STRING,
+        password: Sequelize.VIRTUAL,
+        password_hash: Sequelize.STRING,
+      },
+      { sequelize, modelName: 'users' }
+    );
+
+    this.addHook('beforeSave', async user => {
+      if (user.password) {
+        user.password_hash = await Password.hash(user.password, 12);
+      }
+    });
+
+    return this;
   }
 
-  return User
+  // static associate(models) {}
+
+  checkPassword(password) {
+    return Password.verify(password, this.password_hash);
+  }
 }
+
+export default User;

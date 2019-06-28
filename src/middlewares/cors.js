@@ -1,5 +1,5 @@
-module.exports = function (request, response, next) {
-  const methods = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE']
+export default (request, response, next) => {
+  const methods = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'];
 
   const headers = [
     'Accept',
@@ -7,12 +7,12 @@ module.exports = function (request, response, next) {
     'Content-Type',
     'Authorization',
     'X-Requested-With',
-    'X-Http-Method-Override'
-  ]
+    'X-Http-Method-Override',
+  ];
 
-  response.header('Access-Control-Allow-Origin', '*')
-  response.header('Access-Control-Allow-Methods', methods.join(','))
-  response.header('Access-Control-Allow-Headers', headers.join(','))
+  response.header('Access-Control-Allow-Origin', '*');
+  response.header('Access-Control-Allow-Methods', methods.join(','));
+  response.header('Access-Control-Allow-Headers', headers.join(','));
 
-  next()
-}
+  next();
+};

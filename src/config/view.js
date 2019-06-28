@@ -1,8 +1,17 @@
-const folder = require('./folder')
+import { resolve } from 'path';
 
-module.exports = {
+export default {
+  enable: true,
   engine: 'twig',
-  path: folder.VIEWS,
-  functions: [],
-  filters: []
-}
+  path: resolve(__dirname, '..', 'views'),
+  functions: {
+    toUpper(value) {
+      return value.toUpperCase();
+    },
+  },
+  filters: {
+    toUpper(value) {
+      return value.toUpperCase();
+    },
+  },
+};

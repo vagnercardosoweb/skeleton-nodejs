@@ -1,13 +1,12 @@
-// Global
-const express = require('express')
+import { Router } from 'express';
 
-// Configs
-const router = express.Router()
+// import multer from '../config/multer';
 
-// Controllers
-const UserController = require('../controllers/Api/UserController')
+import UserController from '../controllers/UserController';
 
-// Routes
-router.get('/', UserController.index)
+const router = new Router();
 
-module.exports = router
+router.get('/users', UserController.index);
+// router.get('/saveImage', multer.single('file'), UserController.saveImage);
+
+export default router;

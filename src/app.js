@@ -8,6 +8,7 @@ import io from 'socket.io';
 import Twig from 'twig';
 import * as Sentry from '@sentry/node';
 import { resolve } from 'path';
+import helmet from 'helmet';
 
 // Configs
 import configView from './config/view';
@@ -64,6 +65,7 @@ class App {
   }
 
   initMiddleware() {
+    this.app.use(helmet());
     this.app.use(envMiddleware);
     this.app.use(corsMiddleware);
     this.app.use(methodOverrideMiddleware);

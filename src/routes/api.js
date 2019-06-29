@@ -1,12 +1,9 @@
 import { Router } from 'express';
 
-// import multer from '../config/multer';
-
-import UserController from '../controllers/UserController';
+import ApiController from '../controllers/ApiController';
 
 const router = new Router();
 
-router.get('/users', UserController.index);
-// router.get('/saveImage', multer.single('file'), UserController.saveImage);
+router.get('/*', ApiController.index);
 
 export default router;

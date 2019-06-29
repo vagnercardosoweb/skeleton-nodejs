@@ -1,14 +1,15 @@
+// eslint-disable-next-line consistent-return
 export default (req, res, next) => {
   const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
   const originalMethod = req.originalMethod || req.method;
   let newMethod;
 
-  // Verifica se o método está permitido
+  // Checks whether the method is allowed
   if (!allowedMethods.includes(originalMethod)) {
     return next();
   }
 
-  // Recupera o método custom no body
+  // Recover the custom method in the body
   if (req.body && typeof req.body === 'object') {
     ['_method', '_METHOD'].map(method => {
       if (Object(req.body).hasOwnProperty(method)) {
@@ -18,7 +19,7 @@ export default (req, res, next) => {
     });
   }
 
-  // Recupera na header caso não tenha encontrado
+  // Recover in header if you have not found
   if (!newMethod) {
     let header = 'X-HTTP-Method-Override';
     header = req.headers[header.toLowerCase()];
@@ -27,13 +28,13 @@ export default (req, res, next) => {
       return next();
     }
 
-    // Multiplas headers
+    // Multiple headers
     const index = header.indexOf(',');
 
     newMethod = index !== -1 ? header.substr(0, index).trim() : header.trim();
   }
 
-  // Atribue o novo método
+  // Assigns the new method
   if (newMethod) {
     req.originalMethod = originalMethod;
     req.method = newMethod.toUpperCase();

@@ -1,11 +1,10 @@
 import Sequelize from 'sequelize';
 import mongoose from 'mongoose';
 
-import SequelizeConfig from '../config/database';
+import { database } from '../config';
 
 import User from '../models/User';
 
-const env = process.env.NODE_ENV || 'development';
 const models = [User];
 
 class Database {
@@ -15,11 +14,10 @@ class Database {
   }
 
   initSequelize() {
-    this.sequelize = new Sequelize(SequelizeConfig[env]);
-    this.initSequelizeModels();
-  }
+    const env = process.env.NODE_ENV || 'development';
 
-  initSequelizeModels() {
+    this.sequelize = new Sequelize(database[env]);
+
     models
       .map(model => model.init(this.sequelize))
       .map(model => model.associate && model.associate(this.sequelize.models));

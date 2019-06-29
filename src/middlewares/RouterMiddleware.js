@@ -8,6 +8,8 @@ export default (req, res, next) => {
     originalUrl: req.originalUrl,
     cookies: req.cookies,
     headers: req.headers,
+    params: req.params,
+    query: req.query,
     body: req.body,
   };
 

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
-import configApp from '../config/app';
+import { app } from '../config';
 
 class Jwt {
   constructor() {
     this.jwt = jwt;
-    this.key = configApp.key || 'VCWebNetworks';
+    this.key = app.key || 'VCWebNetworks';
   }
 
   instance() {

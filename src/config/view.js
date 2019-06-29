@@ -4,6 +4,7 @@ export default {
   enable: true,
   engine: 'twig',
   path: resolve(__dirname, '..', 'views'),
+  options: {},
   functions: {
     toUpper(value) {
       return value.toUpperCase();

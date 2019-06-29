@@ -1,7 +1,24 @@
 import { resolve } from 'path';
 import { access, readFile, writeFile } from 'fs';
+import * as config from '../config';
 
-export default async (req, res, next) => {
+/**
+ * Set global configs
+ *
+ * @param { Object } req
+ *
+ * @returns void
+ */
+function setResponseLocals(res) {
+  res.locals.config = config;
+}
+
+/**
+ * Create env file
+ *
+ * @returns void
+ */
+async function createEnvFile() {
   const envPath = resolve(__dirname, '..', '..', '.env');
   const envExamplePath = resolve(__dirname, '..', '..', '.env-example');
 
@@ -11,11 +28,16 @@ export default async (req, res, next) => {
         if (!readError) {
           await writeFile(envPath, content, () => {});
         } else {
-          console.error(readError);
+          throw readError;
         }
       });
     }
   });
+}
+
+export default (req, res, next) => {
+  setResponseLocals(res);
+  createEnvFile();
 
   next();
 };

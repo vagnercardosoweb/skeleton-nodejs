@@ -5,20 +5,22 @@ import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import io from 'socket.io';
-import Twig from 'twig';
 import * as Sentry from '@sentry/node';
-import { resolve } from 'path';
+import Youch from 'youch';
 import helmet from 'helmet';
+import { resolve } from 'path';
 
-// Configs
-import configView from './config/view';
-import configSentry from './config/sentry';
+// Config
+import * as config from './config';
 
-// Middleware
-import corsMiddleware from './middlewares/cors';
-import methodOverrideMiddleware from './middlewares/methodOverride';
-import envMiddleware from './middlewares/env';
-import errorRouter from './middlewares/errorRouter';
+// Libs
+import View from './lib/View';
+
+// Middleware custom
+import AppMiddleware from './middlewares/AppMiddleware';
+import HeaderMiddleware from './middlewares/HeaderMiddleware';
+import MethodOverrideMiddleware from './middlewares/MethodOverrideMiddleware';
+import RouterMiddleware from './middlewares/RouterMiddleware';
 
 // Routes
 import webRoutes from './routes/web';
@@ -36,23 +38,16 @@ class App {
   init() {
     this.initSentry();
     this.initSocketIo();
-
-    if (configView.enable) {
-      this.initTwig();
-    }
-
     this.initMiddleware();
     this.initStatic();
+    this.initView();
     this.initRoutes();
-    this.listen();
+    this.initException();
+    this.run();
   }
 
   initSentry() {
-    if (configSentry.dsn) {
-      Sentry.init(configSentry);
-      this.app.use(Sentry.Handlers.requestHandler());
-      this.app.use(Sentry.Handlers.errorHandler());
-    }
+    Sentry.init(config.sentry);
   }
 
   initSocketIo() {
@@ -65,10 +60,11 @@ class App {
   }
 
   initMiddleware() {
+    this.app.use(AppMiddleware);
     this.app.use(helmet());
-    this.app.use(envMiddleware);
-    this.app.use(corsMiddleware);
-    this.app.use(methodOverrideMiddleware);
+    this.app.use(HeaderMiddleware);
+    this.app.use(Sentry.Handlers.requestHandler());
+    this.app.use(MethodOverrideMiddleware);
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
   }
@@ -81,35 +77,47 @@ class App {
     );
   }
 
+  initView() {
+    if (config.view.enable) {
+      const view = new View(this.app);
+
+      view.init();
+    }
+  }
+
   initRoutes() {
     this.app.use(webRoutes);
     this.app.use('/api', apiRoutes);
-    this.app.use(errorRouter);
+    this.app.use(RouterMiddleware);
   }
 
-  initTwig() {
-    const { path, engine, functions, filters } = configView;
+  initException() {
+    if (process.env.NODE_ENV === 'production') {
+      this.app.use(Sentry.Handlers.errorHandler());
+    }
 
-    this.app.set('views', path);
-    this.app.set('view engine', engine);
+    this.app.use(async (err, req, res, next) => {
+      if (process.env.NODE_ENV !== 'production') {
+        const youch = new Youch(err, req);
 
-    // Custom functions and filters
-    [functions, filters].map(item => {
-      Object.keys(item).map(key => {
-        if (functions.hasOwnProperty(key)) {
-          Twig.extendFunction(key, item[key]);
+        if (req.xhr || req.path.match(/^\/api\//i)) {
+          return res.send(await youch.toJSON());
         }
 
-        if (filters.hasOwnProperty(key)) {
-          Twig.extendFilter(key, item[key]);
-        }
+        return res.send(await youch.toHTML());
+      }
+
+      return res.status(err.status || 500).json({
+        error: true,
+        message: 'Internal Server Error.',
+        sentry: res.sentry,
       });
     });
   }
 
-  listen() {
+  run() {
     this.server.listen(process.env.PORT || 3333);
   }
 }
 
-module.exports = new App();
+export default new App();

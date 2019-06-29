@@ -1,13 +1,13 @@
 import nodemailer from 'nodemailer';
 import Twig from 'twig';
 import { resolve } from 'path';
-import configMail from '../config/mail';
+import * as config from '../config';
 
 class Mail {
   constructor() {
     this.options = {};
 
-    const { host, port, secure, auth } = configMail;
+    const { host, port, secure, auth } = config.mail;
 
     this.nodemailer = nodemailer.createTransport({
       host,
@@ -19,8 +19,8 @@ class Mail {
     this.nodemailer.use('compile', this.twigCompileHtml);
   }
 
-  twigCompileHtml(mail, callback) {
-    if (mail.data.html) {
+  twigCompileHtml(plugin, callback) {
+    if (plugin.data.html) {
       return callback();
     }
 
@@ -29,20 +29,20 @@ class Mail {
       '..',
       'views',
       'mail',
-      `${mail.data.template}.twig`
+      `${plugin.data.template}.twig`
     );
 
-    Twig.renderFile(template, mail.data.context, (err, html) => {
+    Twig.renderFile(template, plugin.data.context, (err, html) => {
       if (err) {
         throw err;
       }
 
-      mail.data.html = html;
+      plugin.data.html = html;
 
       callback();
     });
 
-    return mail;
+    return plugin;
   }
 
   from(name, mail) {
@@ -100,13 +100,11 @@ class Mail {
     return this;
   }
 
-  send(mailOptions) {
-    const { options } = configMail;
-
+  send(options) {
     return this.nodemailer.sendMail({
-      ...options,
+      ...config.mail.options,
       ...this.options,
-      ...mailOptions,
+      ...options,
     });
   }
 }

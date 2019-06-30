@@ -16,23 +16,22 @@ class Mail {
       auth: auth.user ? auth : null,
     });
 
-    this.nodemailer.use('compile', this.twigCompileHtml);
+    this.nodemailer.use('compile', this.compileTwig);
   }
 
-  twigCompileHtml(plugin, callback) {
+  compileTwig(plugin, callback) {
     if (plugin.data.html) {
       return callback();
     }
 
-    const template = resolve(
-      __dirname,
-      '..',
-      'views',
-      'mail',
-      `${plugin.data.template}.twig`
-    );
+    // Prevent duplicate extension .twig
+    let { template } = plugin.data;
+    template = template.replace(/.twig/gi, '');
+    template = resolve(__dirname, '..', 'views', 'mail', `${template}.twig`);
 
-    Twig.renderFile(template, plugin.data.context, (err, html) => {
+    // Compile new html
+    const { context } = plugin.data;
+    Twig.renderFile(template, context, (err, html) => {
       if (err) {
         throw err;
       }

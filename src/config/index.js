@@ -3,9 +3,9 @@ import client from './client';
 import database from './database';
 import mail from './mail';
 import multer from './multer';
-import sentry from './sentry';
-import view from './view';
 import redis from './redis';
+import sentry from './sentry';
 import session from './session';
+import view from './view';
 
-export { app, client, database, mail, multer, sentry, view, redis, session };
+export { app, client, database, mail, multer, redis, sentry, session, view };

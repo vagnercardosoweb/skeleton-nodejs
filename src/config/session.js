@@ -1,15 +1,13 @@
+import crypto from 'crypto';
 import app from './app';
 
 /**
- * Generate hash
+ * Create hash secret and name
  *
  * @param {String} encoding
  */
-export function generateHashByAppKey(encoding) {
-  const binary = Buffer.from(app.key || 'vcw.sid').toString('hex');
-  const name = Buffer.from(binary).toString(encoding || 'base64');
-
-  return name;
+function createHash(encoding) {
+  return crypto.createHmac('sha256', app.key).digest(encoding || 'hex');
 }
 
 // Secure cookie in production
@@ -19,8 +17,8 @@ const secure = process.env.NOD_ENV === 'production';
 // https://www.npmjs.com/package/express-session
 
 export default {
-  name: generateHashByAppKey('hex'),
-  secret: generateHashByAppKey(),
+  name: `sess_${createHash()}`,
+  secret: `secret_${createHash()}`,
   resave: false,
   saveUninitialized: true,
   cookie: {

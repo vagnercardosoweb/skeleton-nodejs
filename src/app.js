@@ -61,9 +61,9 @@ class App {
   }
 
   initMiddleware() {
+    this.app.use(helmet());
     this.app.use(Sentry.Handlers.requestHandler());
     this.app.use(AppMiddleware);
-    this.app.use(helmet());
     this.app.use(SessionMiddleware);
     this.app.use(HeaderMiddleware);
     this.app.use(MethodOverrideMiddleware);

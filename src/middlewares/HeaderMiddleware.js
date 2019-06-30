@@ -1,4 +1,4 @@
-export default (request, response, next) => {
+export default (req, res, next) => {
   const methods = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'];
 
   const headers = [
@@ -10,9 +10,9 @@ export default (request, response, next) => {
     'X-Http-Method-Override',
   ];
 
-  response.header('Access-Control-Allow-Origin', '*');
-  response.header('Access-Control-Allow-Methods', methods.join(','));
-  response.header('Access-Control-Allow-Headers', headers.join(','));
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', methods.join(','));
+  res.header('Access-Control-Allow-Headers', headers.join(','));
 
   next();
 };

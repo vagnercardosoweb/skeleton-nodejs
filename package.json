@@ -27,8 +27,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon",
-    "start": "sucrase-node ./src/index.js"
+    "dev": "NODE_ENV=development nodemon",
+    "start": "NODE_ENV=production sucrase-node ./src/index.js"
   },
   "dependencies": {
     "@sentry/node": "5.4.3",
@@ -41,6 +41,7 @@
     "multer": "1.4.1",
     "mysql2": "1.6.5",
     "nodemailer": "6.2.1",
+    "nunjucks": "3.2.0",
     "sequelize": "5.9.0",
     "socket.io": "2.2.0",
     "twig": "1.13.3",

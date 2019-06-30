@@ -1,6 +1,10 @@
 class IndexController {
   index(req, res) {
-    return res.render('index');
+    try {
+      return res.render('index');
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

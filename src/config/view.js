@@ -2,7 +2,7 @@ import { resolve } from 'path';
 
 export default {
   enable: true,
-  engine: 'twig',
+  engine: 'twig', // twig || nunjucks (njk)
   path: resolve(__dirname, '..', 'views'),
   options: {},
   functions: {

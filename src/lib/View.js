@@ -1,4 +1,5 @@
 import twig from 'twig';
+import nunjucks from 'nunjucks';
 import { view } from '../config';
 
 export default class View {
@@ -11,7 +12,13 @@ export default class View {
 
     switch (engine) {
       case 'twig':
+      case 'html':
         this._initTwig();
+        break;
+
+      case 'nunjucks':
+      case 'njk':
+        this._initNunjucks();
         break;
 
       default:
@@ -19,18 +26,37 @@ export default class View {
     }
   }
 
-  _initTwig() {
-    const { path, engine, options } = view;
+  _initNunjucks() {
+    const { path, engine, options, filters } = view;
 
-    this.app.set('views', path);
+    // Configure engine
+    const env = nunjucks.configure(path, {
+      ...options,
+      express: this.app,
+    });
+
     this.app.set('view engine', engine);
-    this.app.set('twig options', options);
 
-    this._twigMountGloalAndFunctionAndFilters();
+    // Filters
+    [filters].map(item => {
+      Object.keys(item).map(key => {
+        env.addFilter(key, item[key]);
+      });
+    });
   }
 
-  _twigMountGloalAndFunctionAndFilters() {
-    const { functions, filters } = view;
+  _initTwig() {
+    const { path, engine, options, functions, filters } = view;
+
+    // Configure engine
+    this.app.set('views', path);
+    this.app.set('view engine', engine);
+
+    if (engine === 'html') {
+      this.app.engine('html', twig.__express);
+    }
+
+    this.app.set('twig options', options);
 
     // Function && Filters
     [functions, filters].map(item => {

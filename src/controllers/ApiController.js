@@ -1,9 +1,13 @@
 class ApiController {
   index(req, res) {
-    return res.json({
-      error: false,
-      message: 'Api successfully.',
-    });
+    try {
+      return res.json({
+        error: false,
+        message: 'Api successfully.',
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

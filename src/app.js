@@ -18,6 +18,7 @@ import View from './lib/View';
 
 // Middleware custom
 import AppMiddleware from './middlewares/AppMiddleware';
+import SessionMiddleware from './middlewares/SessionMiddleware';
 import HeaderMiddleware from './middlewares/HeaderMiddleware';
 import MethodOverrideMiddleware from './middlewares/MethodOverrideMiddleware';
 import RouterMiddleware from './middlewares/RouterMiddleware';
@@ -60,13 +61,14 @@ class App {
   }
 
   initMiddleware() {
+    this.app.use(Sentry.Handlers.requestHandler());
     this.app.use(AppMiddleware);
     this.app.use(helmet());
+    this.app.use(SessionMiddleware);
     this.app.use(HeaderMiddleware);
-    this.app.use(Sentry.Handlers.requestHandler());
     this.app.use(MethodOverrideMiddleware);
     this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: false }));
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   initStatic() {

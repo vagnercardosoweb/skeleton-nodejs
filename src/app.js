@@ -15,6 +15,7 @@ import * as config from './config';
 
 // Libs
 import View from './lib/View';
+import Database from './lib/Database';
 
 // Middleware custom
 import AppMiddleware from './middlewares/AppMiddleware';
@@ -27,9 +28,6 @@ import RouterMiddleware from './middlewares/RouterMiddleware';
 import webRoutes from './routes/web';
 import apiRoutes from './routes/api';
 
-// Connection database
-import './database';
-
 class App {
   constructor() {
     this.app = express();
@@ -40,6 +38,7 @@ class App {
     this.initSentry();
     this.initSocketIo();
     this.initMiddleware();
+    this.initDatabase();
     this.initStatic();
     this.initView();
     this.initRoutes();
@@ -69,6 +68,11 @@ class App {
     this.app.use(MethodOverrideMiddleware);
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+  }
+
+  initDatabase() {
+    Database.initSequelize();
+    Database.initMongoose();
   }
 
   initStatic() {

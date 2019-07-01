@@ -1,26 +1,24 @@
 import Sequelize from 'sequelize';
 import mongoose from 'mongoose';
 
+import models from '../models';
 import { database } from '../config';
 
-import User from '../models/User';
-
-const models = [User];
+const env = process.env.NODE_ENV || 'development';
 
 class Database {
-  constructor() {
-    this.initSequelize();
-    this.initMongoose();
-  }
-
   initSequelize() {
-    const env = process.env.NODE_ENV || 'development';
+    try {
+      this.sequelize = new Sequelize(database[env]);
 
-    this.sequelize = new Sequelize(database[env]);
-
-    models
-      .map(model => model.init(this.sequelize))
-      .map(model => model.associate && model.associate(this.sequelize.models));
+      models
+        .map(model => model.init(this.sequelize))
+        .map(
+          model => model.associate && model.associate(this.sequelize.models)
+        );
+    } catch (err) {
+      throw err;
+    }
   }
 
   initMongoose() {

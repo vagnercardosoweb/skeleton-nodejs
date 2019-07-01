@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
+// Create user schema
 const UserSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -13,5 +15,63 @@ const UserSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Middleware
+// UserSchema.pre('save', function(next) {
+//   next();
+// });
+
+class UserClass {
+  /**
+   * Equivalent to virtual values
+   *
+   * ```js
+   * UserSchema.virtual('image').get(function() {
+   *   return '...';
+   * });
+   * ```
+   */
+  get image() {
+    const md5 = crypto
+      .createHash('md5')
+      .update(this.email.toLowerCase())
+      .digest('hex');
+
+    return `https://www.gravatar.com/avatar/${md5}?s=500`;
+  }
+
+  /**
+   * Equivalent to methods
+   *
+   * ```js
+   * UserSchema.methods.getFormattedAddress = function() {
+   *   return '...';
+   * };
+   * ```
+   */
+  getFormattedAddress() {
+    return `${this.name} <${this.email}>`;
+  }
+
+  /**
+   * Equivalent to methods
+   *
+   * ```js
+   * UserSchema.static('findByEmail', function(){
+   *   return '...';
+   * })
+   * ```
+   *
+   * @param {String} email
+   */
+  static findByEmail(email) {
+    return this.findOne({ email });
+  }
+}
+
+// Loads an ES6 class into a schema. Maps setters + getters,
+// static methods, and instance methods to schema virtuals,
+// statics, and methods.
+UserSchema.loadClass(UserClass);
 
 export default mongoose.model('User', UserSchema);

@@ -1,6 +1,6 @@
 import twig from 'twig';
 import nunjucks from 'nunjucks';
-import { view } from '../config';
+import config from '../config';
 
 export default class View {
   constructor(app) {
@@ -8,7 +8,7 @@ export default class View {
   }
 
   init() {
-    const { engine } = view;
+    const { engine } = config.view;
 
     switch (engine) {
       case 'twig':
@@ -27,7 +27,7 @@ export default class View {
   }
 
   _initNunjucks() {
-    const { path, engine, options, filters } = view;
+    const { path, engine, options, filters } = config.view;
 
     // Configure engine
     const env = nunjucks.configure(path, {
@@ -46,7 +46,7 @@ export default class View {
   }
 
   _initTwig() {
-    const { path, engine, options, functions, filters } = view;
+    const { path, engine, options, functions, filters } = config.view;
 
     // Configure engine
     this.app.set('views', path);

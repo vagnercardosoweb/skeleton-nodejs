@@ -2,16 +2,16 @@
 import 'dotenv/config';
 
 // Global
+import { resolve } from 'path';
 import express from 'express';
 import http from 'http';
 import io from 'socket.io';
 import * as Sentry from '@sentry/node';
 import Youch from 'youch';
 import helmet from 'helmet';
-import { resolve } from 'path';
 
 // Config
-import * as config from './config';
+import config from './config';
 
 // Libs
 import View from './lib/View';
@@ -85,9 +85,7 @@ class App {
 
   initView() {
     if (config.view.enable) {
-      const view = new View(this.app);
-
-      view.init();
+      new View(this.app).init();
     }
   }
 

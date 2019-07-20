@@ -1,7 +1,8 @@
+import { resolve } from 'path';
 import nodemailer from 'nodemailer';
 import Twig from 'twig';
-import { resolve } from 'path';
-import * as config from '../config';
+
+import config from '../config';
 
 class Mail {
   constructor() {
@@ -9,14 +10,14 @@ class Mail {
 
     const { host, port, secure, auth } = config.mail;
 
-    this.nodemailer = nodemailer.createTransport({
+    this.mailer = nodemailer.createTransport({
       host,
       port,
       secure,
       auth: auth.user ? auth : null,
     });
 
-    this.nodemailer.use('compile', this.compileTwig);
+    this.mailer.use('compile', this.compileTwig);
   }
 
   compileTwig(plugin, callback) {
@@ -100,7 +101,7 @@ class Mail {
   }
 
   send(options) {
-    return this.nodemailer.sendMail({
+    return this.mailer.sendMail({
       ...config.mail.options,
       ...this.options,
       ...options,

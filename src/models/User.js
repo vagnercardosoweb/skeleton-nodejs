@@ -15,7 +15,7 @@ class User extends Model {
 
     this.addHook('beforeSave', async user => {
       if (user.password) {
-        user.password_hash = await Password.hash(user.password, 12);
+        user.password_hash = await Password.hash(user.password);
       }
     });
 

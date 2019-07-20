@@ -2,14 +2,14 @@ import Sequelize from 'sequelize';
 import mongoose from 'mongoose';
 
 import models from '../models';
-import { database } from '../config';
+import config from '../config';
 
 const env = process.env.NODE_ENV || 'development';
 
 class Database {
   initSequelize() {
     try {
-      this.sequelize = new Sequelize(database[env]);
+      this.sequelize = new Sequelize(config.database[env]);
 
       models
         .map(model => model.init(this.sequelize))

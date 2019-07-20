@@ -8,4 +8,14 @@ import sentry from './sentry';
 import session from './session';
 import view from './view';
 
-export { app, client, database, mail, multer, redis, sentry, session, view };
+export default {
+  app,
+  client,
+  database,
+  mail,
+  multer,
+  redis,
+  sentry,
+  session,
+  view,
+};

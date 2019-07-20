@@ -1,20 +1,15 @@
 import jwt from 'jsonwebtoken';
-import { app } from '../config';
+import config from '../config/app';
 
 class Jwt {
-  constructor() {
-    this.jwt = jwt;
-    this.key = app.key || 'VCWebNetworks';
-  }
-
   instance() {
-    return this.jwt;
+    return jwt;
   }
 
   encode(payload, options) {
     return new Promise((resolve, reject) => {
       try {
-        resolve(this.jwt.sign(payload, this.key, options));
+        resolve(jwt.sign(payload, config.key, options));
       } catch (err) {
         reject(err);
       }
@@ -24,7 +19,7 @@ class Jwt {
   decode(token, options) {
     return new Promise((resolve, reject) => {
       try {
-        resolve(this.jwt.verify(token, this.key, options));
+        resolve(jwt.verify(token, config.key, options));
       } catch (err) {
         reject(err);
       }

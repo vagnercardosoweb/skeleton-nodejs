@@ -1,28 +1,15 @@
-import crypto from 'crypto';
-import app from './app';
-
-/**
- * Create hash secret and name
- *
- * @param {String} encoding
- */
-function createHash(encoding) {
-  return crypto.createHmac('sha256', app.key).digest(encoding || 'hex');
-}
-
-// Secure cookie in production
-const secure = process.env.NOD_ENV === 'production';
+import Helper from '../lib/Helper';
 
 // Options for
 // https://www.npmjs.com/package/express-session
 
 export default {
-  name: `sess_${createHash()}`,
-  secret: `secret_${createHash()}`,
+  name: `sess_${Helper.hash('name')}`,
+  secret: `secret_${Helper.hash('secret')}`,
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure,
+    secure: process.env.NOD_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // expires in 1 day
   },

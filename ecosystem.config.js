@@ -1,12 +1,12 @@
 module.exports = {
   apps: [
     {
-      name: 'myapp',
-      script: './src/index.js',
+      name: 'nodeapp',
+      script: './dist/server.js',
 
       // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
       args: '',
-      interpreter: './node_modules/sucrase/bin/sucrase-node',
+      // interpreter: './node_modules/sucrase/bin/sucrase-node',
       instances: 1,
       autorestart: true,
       watch: true,

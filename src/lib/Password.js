@@ -1,21 +1,16 @@
 import bcrypt from 'bcryptjs';
 
 class Password {
-  constructor() {
-    this.bcrypt = bcrypt;
-    this.defaultSalt = 10;
-  }
-
   instance() {
-    return this.bcrypt;
+    return bcrypt;
   }
 
   hash(password, salt) {
-    return this.bcrypt.hash(password, salt || this.defaultSalt);
+    return bcrypt.hash(password, salt || 12);
   }
 
   verify(password, hash) {
-    return this.bcrypt.compare(password, hash);
+    return bcrypt.compare(password, hash);
   }
 }
 

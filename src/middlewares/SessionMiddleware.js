@@ -1,11 +1,11 @@
-import expressSession from 'express-session';
-import connectRedis from 'connect-redis';
+import session from 'express-session';
+import redis from 'connect-redis';
 
-import { session, redis } from '../config';
+import config from '../config';
 
-const store = new (connectRedis(expressSession))(redis);
+const store = new (redis(session))(config.redis);
 
-export default expressSession({
+export default session({
   store,
-  ...session,
+  ...config.session,
 });

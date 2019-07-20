@@ -1,29 +1,24 @@
-import { resolve } from 'path';
-import { access, readFile, writeFile } from 'fs';
+// import { resolve } from 'path';
+// import { access, readFile, writeFile } from 'fs';
 // import crypto from 'crypto';
-import * as config from '../config';
+import config from '../config';
 
-/**
- * Create env file
- *
- * @returns void
- */
-async function createEnvFile() {
-  const envPath = resolve(__dirname, '..', '..', '.env');
-  const envExamplePath = resolve(__dirname, '..', '..', '.env-example');
+// async function createEnvFile() {
+//   const envPath = resolve(__dirname, '..', '..', '.env');
+//   const envExamplePath = resolve(__dirname, '..', '..', '.env-example');
 
-  await access(envPath, 'utf8', async accessError => {
-    if (accessError) {
-      await readFile(envExamplePath, async (readError, content) => {
-        if (!readError) {
-          await writeFile(envPath, content, () => {});
-        } else {
-          throw readError;
-        }
-      });
-    }
-  });
-}
+//   await access(envPath, 'utf8', async accessError => {
+//     if (accessError) {
+//       await readFile(envExamplePath, async (readError, content) => {
+//         if (!readError) {
+//           await writeFile(envPath, content, () => {});
+//         } else {
+//           throw readError;
+//         }
+//       });
+//     }
+//   });
+// }
 
 // async function createAppKey() {
 //   const envPath = resolve(__dirname, '..', '..', '.env');
@@ -49,7 +44,7 @@ async function createEnvFile() {
 // }
 
 export default (req, res, next) => {
-  createEnvFile();
+  // createEnvFile();
   // createAppKey();
 
   req.app.set('trust proxy', true);

@@ -7,6 +7,7 @@ module.exports = {
     database: process.env.DB_DATABASE,
     migrationStorageTableName: 'migrations',
     define: {
+      engine: 'InnoDB',
       timestamps: true,
       underscored: true,
       underscoredAll: true,
@@ -20,6 +21,7 @@ module.exports = {
     database: process.env.DB_DATABASE,
     migrationStorageTableName: 'migrations',
     define: {
+      engine: 'InnoDB',
       timestamps: true,
       underscored: true,
       underscoredAll: true,

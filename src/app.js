@@ -9,6 +9,7 @@ import io from 'socket.io';
 import * as Sentry from '@sentry/node';
 import Youch from 'youch';
 import helmet from 'helmet';
+import 'express-async-errors';
 
 // Config
 import config from './config';
@@ -25,8 +26,7 @@ import MethodOverrideMiddleware from './middlewares/MethodOverrideMiddleware';
 import RouterMiddleware from './middlewares/RouterMiddleware';
 
 // Routes
-import webRoutes from './routes/web';
-import apiRoutes from './routes/api';
+import routes from './routes';
 
 class App {
   constructor() {
@@ -60,8 +60,8 @@ class App {
   }
 
   initMiddleware() {
-    this.app.use(helmet());
     this.app.use(Sentry.Handlers.requestHandler());
+    this.app.use(helmet());
     this.app.use(AppMiddleware);
     this.app.use(SessionMiddleware);
     this.app.use(HeaderMiddleware);
@@ -71,8 +71,8 @@ class App {
   }
 
   initDatabase() {
-    Database.initSequelize();
-    Database.initMongoose();
+    Database.connectSequelize();
+    // Database.connectMongoose();
   }
 
   initStatic() {
@@ -90,8 +90,7 @@ class App {
   }
 
   initRoutes() {
-    this.app.use(webRoutes);
-    this.app.use('/api', apiRoutes);
+    this.app.use(routes);
     this.app.use(RouterMiddleware);
   }
 

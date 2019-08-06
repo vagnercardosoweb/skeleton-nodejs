@@ -50,5 +50,17 @@ export default (req, res, next) => {
   req.app.set('trust proxy', true);
   res.locals.config = config;
 
+  res.error = (err, status) => {
+    const message = err.message || err;
+    status = status || 400;
+
+    res.status(status).json({ error: true, status, message });
+  };
+
+  res.success = (data, status) => {
+    status = status || 200;
+    res.status(status).json({ error: false, status, ...data });
+  };
+
   next();
 };

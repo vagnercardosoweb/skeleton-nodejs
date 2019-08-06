@@ -6,4 +6,4 @@ const router = new Router();
 
 router.get('/*', ApiController.index);
 
-export default router;
+export default router.use('/api', router);

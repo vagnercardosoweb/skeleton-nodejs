@@ -2,13 +2,13 @@ import { resolve } from 'path';
 import nodemailer from 'nodemailer';
 import Twig from 'twig';
 
-import config from '../config';
+import config from '../config/mail';
 
 class Mail {
   constructor() {
     this.options = {};
 
-    const { host, port, secure, auth } = config.mail;
+    const { host, port, secure, auth } = config;
 
     this.mailer = nodemailer.createTransport({
       host,
@@ -27,7 +27,7 @@ class Mail {
 
     // Prevent duplicate extension .twig
     let { template } = plugin.data;
-    template = template.replace(/.twig/gi, '');
+    template = template.replace(/.twig$/gi, '');
     template = resolve(__dirname, '..', 'views', 'mail', `${template}.twig`);
 
     // Compile new html
@@ -102,7 +102,7 @@ class Mail {
 
   send(options) {
     return this.mailer.sendMail({
-      ...config.mail.options,
+      ...config.options,
       ...this.options,
       ...options,
     });

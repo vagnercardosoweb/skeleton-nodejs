@@ -10,6 +10,7 @@ module.exports = {
         email: `email${i}@gmail.com`,
         password_hash: bcrypt.hashSync(`password${i}`, 12),
         created_at: Sequelize.fn('NOW'),
+        updated_at: Sequelize.fn('NOW'),
       });
     }
 

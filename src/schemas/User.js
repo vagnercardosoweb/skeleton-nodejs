@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Helper from '../lib/Helper';
+import { createHashMd5 } from '../helpers';
 
 // Create user schema
 const UserSchema = new mongoose.Schema(
@@ -32,7 +32,7 @@ class UserClass {
    * ```
    */
   get image() {
-    const md5 = Helper.md5(this.email.toLowerCase());
+    const md5 = createHashMd5(this.email.toLowerCase());
 
     return `https://www.gravatar.com/avatar/${md5}?s=500`;
   }

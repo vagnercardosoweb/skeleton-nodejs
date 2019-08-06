@@ -1,5 +1,5 @@
 export default (req, res, next) => {
-  const methods = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'];
+  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
 
   const headers = [
     'Accept',

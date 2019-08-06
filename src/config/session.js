@@ -1,11 +1,11 @@
-import Helper from '../lib/Helper';
+import { createHash } from '../helpers';
 
 // Options for
 // https://www.npmjs.com/package/express-session
 
 export default {
-  name: `sess_${Helper.hash('name')}`,
-  secret: `secret_${Helper.hash('secret')}`,
+  name: `sess_${createHash('name').slice(0, 25)}`,
+  secret: `secret_${createHash('secret').slice(0, 25)}`,
   resave: false,
   saveUninitialized: true,
   cookie: {

@@ -6,11 +6,11 @@ export default (req, res, next) => {
     originalMethod: req.originalMethod || null,
     path: req.path,
     originalUrl: req.originalUrl,
-    cookies: req.cookies,
-    headers: req.headers,
-    params: req.params,
-    query: req.query,
-    body: req.body,
+    // cookies: req.cookies,
+    // headers: req.headers,
+    // params: req.params,
+    // query: req.query,
+    // body: req.body,
   };
 
   // Method override

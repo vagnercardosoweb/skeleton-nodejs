@@ -3,8 +3,8 @@ version: '3'
 services:
   app:
     build: .
-    command: yarn dev:pm2
-    working_dir: /usr/app
+    command: yarn dev
+    working_dir: /home/node/app
     restart: always
     networks:
       - mysql
@@ -14,7 +14,7 @@ services:
     ports:
       - '3333:3333'
     volumes:
-      - '.:/usr/app'
+      - '.:/home/node/app'
     environment:
       - PORT=3333
       - NODE_ENV=development
@@ -28,6 +28,8 @@ services:
     image: mysql:5.7
     command: --sql-mode=""
     restart: always
+    volumes:
+      - './mysql:/var/lib/mysql'
     networks:
       - mysql
     ports:

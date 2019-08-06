@@ -3,9 +3,8 @@
 /**/node_modules/
 /**/package.lock
 /**/yarn-error.log
-/**/tmp/*
-!/**/tmp/.gitkeep
-!/**/tmp/uploads
 /**/tmp/uploads/*
 !/**/tmp/uploads/.gitkeep
 /**/dist/*
+/**/mysql/*
+!/**/mysql/.gitkeep

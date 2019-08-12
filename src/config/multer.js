@@ -1,18 +1,20 @@
 import multer from 'multer';
-import crypto from 'crypto';
 import { extname, resolve } from 'path';
+import { createRandomBytes } from '../helpers';
 
 export default multer({
   storage: multer.diskStorage({
     destination: resolve(__dirname, '..', '..', 'tmp', 'uploads'),
     filename: (req, file, callback) => {
-      crypto.randomBytes(16, (err, hash) => {
-        if (err) return callback(err);
+      const hash = createRandomBytes(16);
 
-        file.newName = hash.toString('hex') + extname(file.originalname);
+      if (hash) {
+        return callback(new Error('Error createRandomBytes in multer config.'));
+      }
 
-        return callback(null, file.newName);
-      });
+      file.newName = hash.toString('hex') + extname(file.originalname);
+
+      return callback(null, file.newName);
     },
   }),
 });

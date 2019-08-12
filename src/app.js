@@ -2,13 +2,13 @@
 import 'dotenv/config';
 
 // Global
-import { resolve } from 'path';
-import express from 'express';
 import http from 'http';
-import io from 'socket.io';
-import * as Sentry from '@sentry/node';
 import Youch from 'youch';
 import helmet from 'helmet';
+import express from 'express';
+import socketIo from 'socket.io';
+import { resolve } from 'path';
+import * as Sentry from '@sentry/node';
 import 'express-async-errors';
 
 // Config
@@ -24,6 +24,7 @@ import SessionMiddleware from './middlewares/SessionMiddleware';
 import HeaderMiddleware from './middlewares/HeaderMiddleware';
 import MethodOverrideMiddleware from './middlewares/MethodOverrideMiddleware';
 import RouterMiddleware from './middlewares/RouterMiddleware';
+import SocketMiddleware from './middlewares/SocketMiddleware';
 
 // Routes
 import routes from './routes';
@@ -32,11 +33,11 @@ class App {
   constructor() {
     this.app = express();
     this.server = http.createServer(this.app);
+    this.socketIo = socketIo(this.server);
   }
 
   init() {
     this.initSentry();
-    this.initSocketIo();
     this.initMiddleware();
     this.initDatabase();
     this.initStatic();
@@ -50,24 +51,16 @@ class App {
     Sentry.init(config.sentry);
   }
 
-  initSocketIo() {
-    this.io = io(this.server);
-
-    this.app.use((req, res, next) => {
-      req.io = this.io;
-      next();
-    });
-  }
-
   initMiddleware() {
     this.app.use(Sentry.Handlers.requestHandler());
     this.app.use(helmet());
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use(AppMiddleware);
     this.app.use(SessionMiddleware);
     this.app.use(HeaderMiddleware);
     this.app.use(MethodOverrideMiddleware);
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(SocketMiddleware(this.socketIo));
   }
 
   initDatabase() {

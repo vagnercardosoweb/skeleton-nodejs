@@ -4,9 +4,9 @@ import crypto from 'crypto';
 import config from './config/app';
 
 export function existsOrError(value, err) {
-  if (!value) throw err;
-  if (Array.isArray(value) && value.length === 0) throw err;
-  if (typeof value === 'string' && !value.trim()) throw err;
+  if (!value) throw new Error(err);
+  if (Array.isArray(value) && value.length === 0) throw new Error(err);
+  if (typeof value === 'string' && !value.trim()) throw new Error(err);
 }
 
 export function notExistsOrError(value, err) {
@@ -20,13 +20,12 @@ export function notExistsOrError(value, err) {
 }
 
 export function equalsOrError(valueA, valueB, err) {
-  if (valueA !== valueB) throw err;
+  if (valueA !== valueB) throw new Error(err);
 }
 
 export function uuid(a) {
   return a
-    ? // eslint-disable-next-line no-bitwise
-      (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)
+    ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)
     : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, uuid);
 }
 
@@ -72,6 +71,48 @@ export function createRandomBytes(length) {
       return resolve(hash.toString('hex'));
     });
   });
+}
+
+export function createRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+export function createRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function createDateInstance(date) {
+  date = date || Date.now();
+
+  if (date instanceof Date) {
+    date = date.getTime();
+    // eslint-disable-next-line no-restricted-globals
+  } else if (isNaN(Number(date)) && date.trim()) {
+    const dateSplit = date.toString().split(' ');
+    const dateTime = typeof dateSplit[1] !== 'undefined' ? dateSplit[1] : '';
+
+    if (dateSplit[0].match(/^\d{2}\/\d{2}\/\d{4}$/gi)) {
+      const dateReverse = dateSplit[0]
+        .split('/')
+        .reverse()
+        .join('/');
+
+      date = `${dateReverse} ${dateTime}`;
+    } else if (dateSplit[0].match(/^\d{4}\/\d{2}\/\d{2}$/gi)) {
+      date = `${dateSplit[0]} ${dateTime}`;
+    }
+    // eslint-disable-next-line no-restricted-globals
+  } else if (!isNaN(Number(date))) {
+    date = Number(date);
+  }
+
+  return new Date(date);
 }
 
 export function convertToCamelCaseString(string) {

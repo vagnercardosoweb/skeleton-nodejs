@@ -15,14 +15,6 @@ services:
       - '3333:3333'
     volumes:
       - '.:/home/node/app'
-    environment:
-      - PORT=3333
-      - NODE_ENV=development
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_DATABASE=development
 
   mysql:
     image: mysql:5.7

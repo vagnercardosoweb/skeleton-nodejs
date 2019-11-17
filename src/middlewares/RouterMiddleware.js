@@ -1,17 +1,32 @@
-export default (req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+import { Request, Response } from 'express';
+
+/**
+ * @param {Request} req
+ * @param {Response} res
+ */
+export default (req, res) => {
   let error = {
+    error: true,
     status: 404,
     message: 'Error 404 (Not Found)',
     method: req.method,
     originalMethod: req.originalMethod || null,
     path: req.path,
     originalUrl: req.originalUrl,
-    // cookies: req.cookies,
-    // headers: req.headers,
-    // params: req.params,
-    // query: req.query,
-    // body: req.body,
   };
+
+  // In development
+  if (process.env.NODE_ENV === 'development') {
+    error = {
+      ...error,
+      cookies: req.cookies,
+      headers: req.headers,
+      params: req.params,
+      query: req.query,
+      body: req.body,
+    };
+  }
 
   // Method override
   if (req.originalMethod !== undefined && req.originalMethod !== req.method) {
@@ -31,11 +46,10 @@ export default (req, res, next) => {
     path = `${path}/`;
   }
 
-  // Response JSON
+  // Response
   if (req.xhr || path.match(/^\/api\//i)) {
-    return res.json({ error });
+    return res.json({ ...error });
   }
 
-  // Response HTML
   return res.render(`error/${res.statusCode}`, { error });
 };

@@ -1,66 +1,52 @@
-// import { resolve } from 'path';
-// import { access, readFile, writeFile } from 'fs';
-// import crypto from 'crypto';
-import config from '../config';
+// eslint-disable-next-line no-unused-vars
+import express, { Application } from 'express';
+import { ValidationError } from 'yup';
 
-// async function createEnvFile() {
-//   const envPath = resolve(__dirname, '..', '..', '.env');
-//   const envExamplePath = resolve(__dirname, '..', '..', '.env-example');
+import configApp from '../config/app';
 
-//   await access(envPath, 'utf8', async accessError => {
-//     if (accessError) {
-//       await readFile(envExamplePath, async (readError, content) => {
-//         if (!readError) {
-//           await writeFile(envPath, content, () => {});
-//         } else {
-//           throw readError;
-//         }
-//       });
-//     }
-//   });
-// }
+/**
+ * @param {Application} app
+ */
+export default app => {
+  app.set('trust proxy', true);
+  app.use(express.static(configApp.path.public));
+  app.use('/uploads', express.static(configApp.path.uploads));
 
-// async function createAppKey() {
-//   const envPath = resolve(__dirname, '..', '..', '.env');
-//   const appKey = config.app.key;
+  const dev = process.env.NODE_ENV === 'development';
 
-//   if (!appKey && appKey === '') {
-//     await readFile(envPath, async (readError, content) => {
-//       if (!readError && !config.app.key) {
-//         crypto.randomBytes(32, async (err, buf) => {
-//           const randomBytes = buf.toString('base64');
+  return (req, res, next) => {
+    res.error = (err, status) => {
+      // eslint-disable-next-line no-console
+      if (dev) console.log('ERROR: ', err);
 
-//           let newContent = content.toString();
-//           newContent = newContent.replace(
-//             /^APP_KEY=/gim,
-//             `APP_KEY=vcw_${randomBytes}`
-//           );
+      if (err.sqlMessage !== undefined && !dev) {
+        err.message = 'Problema interno! Favor contate os desenvolvedores.';
+      }
 
-//           await writeFile(envPath, Buffer.from(newContent), () => {});
-//         });
-//       }
-//     });
-//   }
-// }
+      const name = err.name || null;
+      let message = err.message || err;
+      let validators = null;
 
-export default (req, res, next) => {
-  // createEnvFile();
-  // createAppKey();
+      if (err instanceof ValidationError && err.inner) {
+        message = err.errors[Math.floor(Math.random() * err.errors.length)];
+        validators = err.inner;
+      }
 
-  req.app.set('trust proxy', true);
-  res.locals.config = config;
+      status = status || err.status || 400;
+      res
+        .status(status)
+        .json({ error: true, name, status, message, validators });
 
-  res.error = (err, status) => {
-    const message = err.message || err;
-    status = status || 400;
+      return res;
+    };
 
-    res.status(status).json({ error: true, status, message });
+    res.success = (data, status) => {
+      status = status || res.statusCode || 200;
+      res.status(status).json({ error: false, status, ...data });
+
+      return res;
+    };
+
+    next();
   };
-
-  res.success = (data, status) => {
-    status = status || 200;
-    res.status(status).json({ error: false, status, ...data });
-  };
-
-  next();
 };

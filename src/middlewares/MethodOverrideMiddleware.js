@@ -11,8 +11,8 @@ export default (req, res, next) => {
 
   // Recover the custom method in the body
   if (req.body && typeof req.body === 'object') {
-    ['_method', '_METHOD'].map(method => {
-      if (Object(req.body).hasOwnProperty(method)) {
+    ['_method', '_METHOD'].forEach(method => {
+      if (typeof req.body[method] !== 'undefined') {
         newMethod = req.body[method];
         delete req.body[method];
       }
@@ -30,7 +30,6 @@ export default (req, res, next) => {
 
     // Multiple headers
     const index = header.indexOf(',');
-
     newMethod = index !== -1 ? header.substr(0, index).trim() : header.trim();
   }
 
@@ -40,5 +39,5 @@ export default (req, res, next) => {
     req.method = newMethod.toUpperCase();
   }
 
-  next();
+  return next();
 };

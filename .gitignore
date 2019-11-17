@@ -1,3 +1,4 @@
+.DS_Store
 /**/.idea/
 /**/.env
 /**/node_modules/
@@ -8,3 +9,5 @@
 /**/dist/*
 /**/mysql/*
 !/**/mysql/.gitkeep
+/**/postgree/*
+!/**/postgree/.gitkeep

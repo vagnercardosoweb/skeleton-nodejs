@@ -1,17 +1,31 @@
-/**
- * @param {SocketIO.Server} socketIo
- */
-export default socketIo => {
-  socketIo.on('connection', client => {
-    // console.log(`Socket connection: ${client.id}`);
+// eslint-disable-next-line no-unused-vars
+import { Server } from 'socket.io';
 
-    client.on('disconnect', () => {
-      // onsole.log(`Socket disconnect: ${client.id}`);
+let socketId;
+const connectedUsers = {};
+
+/**
+ * @param {Server} io
+ */
+export default io => {
+  io.on('connection', socket => {
+    socketId = socket.id;
+    connectedUsers[socket.id] = true;
+
+    socket.on('disconnect', () => {
+      if (connectedUsers[socket.id]) {
+        delete connectedUsers[socket.id];
+      }
     });
+
+    io.sockets.emit('connectedUsers', connectedUsers);
   });
 
   return (req, res, next) => {
-    req.socketIo = socketIo;
-    next();
+    req.io = io;
+    req.socketId = socketId;
+    req.connectedUsers = connectedUsers;
+
+    return next();
   };
 };

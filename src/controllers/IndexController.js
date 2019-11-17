@@ -1,10 +1,13 @@
+// eslint-disable-next-line no-unused-vars
+import { Request, Response } from 'express';
+
 class IndexController {
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   */
   index(req, res) {
-    try {
-      return res.render('index');
-    } catch (err) {
-      throw err;
-    }
+    return res.render('index');
   }
 }
 

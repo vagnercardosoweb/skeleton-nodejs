@@ -1,7 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
-import Password from '../lib/Password';
+import Password from '../services/Password';
 
-class User extends Model {
+export default class UserModel extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -24,9 +24,9 @@ class User extends Model {
 
   // static associate(models) {}
 
+  // static findByEmail(email) {...}
+
   checkPassword(password) {
     return Password.verify(password, this.password_hash);
   }
 }
-
-export default User;

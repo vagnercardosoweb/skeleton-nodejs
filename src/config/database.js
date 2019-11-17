@@ -1,13 +1,14 @@
+const charset = process.env.DB_ENCODING || 'utf8mb4';
+
 module.exports = {
-  dialect: 'mysql',
+  dialect: process.env.DB_DIALECT || 'mysql',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  username: process.env.DB_USER,
+  username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  timezone: process.env.DB_TIMEZONE || 'America/Sao_Paulo',
-  encoding: process.emit.DB_ENCODING || 'utf8',
-
+  encoding: charset,
+  timezone: process.env.DB_TIMEZONE || '+00:00',
   migrationStorageTableName: 'migrations',
 
   define: {
@@ -15,9 +16,9 @@ module.exports = {
     timestamps: true,
     underscored: true,
     underscoredAll: true,
-    charset: 'utf8',
+    charset,
     dialectOptions: {
-      collate: 'utf8_general_ci',
+      collate: 'utf8mb4_general_ci',
     },
   },
 

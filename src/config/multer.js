@@ -1,20 +1,30 @@
-import multer from 'multer';
-import { extname, resolve } from 'path';
+// eslint-disable-next-line no-unused-vars
+import multer, { Options } from 'multer';
+import { extname } from 'path';
 import { createRandomBytes } from '../helpers';
+import configApp from './app';
 
-export default multer({
-  storage: multer.diskStorage({
-    destination: resolve(__dirname, '..', '..', 'tmp', 'uploads'),
-    filename: (req, file, callback) => {
-      const hash = createRandomBytes(16);
+export function MulterAutomaticTmpUploads() {
+  return multer({
+    storage: multer.diskStorage({
+      destination: configApp.path.uploads,
+      filename: async (_, file, callback) => {
+        try {
+          const hash = await createRandomBytes(16);
+          file.newName = `${hash}${extname(file.originalname)}`;
 
-      if (hash) {
-        return callback(new Error('Error createRandomBytes in multer config.'));
-      }
+          return callback(null, file.newName);
+        } catch (e) {
+          return callback(e, null);
+        }
+      },
+    }),
+  });
+}
 
-      file.newName = hash.toString('hex') + extname(file.originalname);
-
-      return callback(null, file.newName);
-    },
-  }),
-});
+/**
+ * @param {Options} options
+ */
+export default function(options = {}) {
+  return multer(options);
+}

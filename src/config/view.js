@@ -1,17 +1,17 @@
-import { resolve } from 'path';
+import configApp from './app';
 
 export default {
   enable: true,
   engine: 'twig', // twig || nunjucks (njk)
-  path: resolve(__dirname, '..', '..', 'src', 'views'),
+  path: configApp.path.views,
   options: {},
   functions: {
-    toUpper(value) {
+    toUpperCase(value) {
       return value.toUpperCase();
     },
   },
   filters: {
-    toUpper(value) {
+    toUpperCase(value) {
       return value.toUpperCase();
     },
   },

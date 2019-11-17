@@ -3,8 +3,9 @@ import nodemailer from 'nodemailer';
 import Twig from 'twig';
 
 import config from '../config/mail';
+import configApp from '../config/app';
 
-class Mail {
+class Mailer {
   constructor() {
     this.options = {};
 
@@ -20,29 +21,27 @@ class Mail {
     this.mailer.use('compile', this.compileTwig);
   }
 
-  compileTwig(plugin, callback) {
-    if (plugin.data.html) {
+  compileTwig(mail, callback) {
+    if (mail.data.html) {
       return callback();
     }
 
     // Prevent duplicate extension .twig
-    let { template } = plugin.data;
+    let { template } = mail.data;
     template = template.replace(/.twig$/gi, '');
-    template = resolve(__dirname, '..', 'views', 'mail', `${template}.twig`);
+    template = resolve(configApp.path.views, 'mail', `${template}.twig`);
 
     // Compile new html
-    const { context } = plugin.data;
+    const { context } = mail.data;
     Twig.renderFile(template, context, (err, html) => {
-      if (err) {
-        throw err;
-      }
+      if (err) throw err;
 
-      plugin.data.html = html;
+      mail.data.html = html;
 
       callback();
     });
 
-    return plugin;
+    return mail;
   }
 
   from(name, mail) {
@@ -109,4 +108,4 @@ class Mail {
   }
 }
 
-export default new Mail();
+export default new Mailer();

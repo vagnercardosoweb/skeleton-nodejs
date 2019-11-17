@@ -1,30 +1,29 @@
-// Loader environment
 import 'dotenv/config';
-
-// Global
+import io from 'socket.io';
 import http from 'http';
-import Youch from 'youch';
 import helmet from 'helmet';
 import express from 'express';
-import socketIo from 'socket.io';
-import { resolve } from 'path';
 import * as Sentry from '@sentry/node';
 import 'express-async-errors';
 
-// Config
-import config from './config';
+// Configs
+import configView from './config/view';
+import configSentry from './config/sentry';
 
-// Libs
-import View from './lib/View';
-import Database from './lib/Database';
+// Services
+import View from './services/View';
+import Database from './services/Database';
 
-// Middleware custom
+// Middlewares
 import AppMiddleware from './middlewares/AppMiddleware';
 import SessionMiddleware from './middlewares/SessionMiddleware';
 import HeaderMiddleware from './middlewares/HeaderMiddleware';
 import MethodOverrideMiddleware from './middlewares/MethodOverrideMiddleware';
 import RouterMiddleware from './middlewares/RouterMiddleware';
 import SocketMiddleware from './middlewares/SocketMiddleware';
+// import TokenMiddleware from './middlewares/TokenMiddleware';
+import ErrorMiddleware from './middlewares/ErrorMiddleware';
+import MorganMiddleware from './middlewares/MorganMiddleware';
 
 // Routes
 import routes from './routes';
@@ -33,87 +32,52 @@ class App {
   constructor() {
     this.app = express();
     this.server = http.createServer(this.app);
-    this.socketIo = socketIo(this.server);
+    this.io = io(this.server);
+
+    this.sentry();
+    this.middlewares();
+    this.services();
+    this.routes();
+    this.exception();
   }
 
-  init() {
-    this.initSentry();
-    this.initMiddleware();
-    this.initDatabase();
-    this.initStatic();
-    this.initView();
-    this.initRoutes();
-    this.initException();
-    this.run();
+  sentry() {
+    Sentry.init(configSentry);
   }
 
-  initSentry() {
-    Sentry.init(config.sentry);
+  services() {
+    if (configView.enable) {
+      new View(this.app).init();
+    }
+
+    Database.connectSequelize();
+    Database.connectMongoose();
   }
 
-  initMiddleware() {
-    this.app.use(Sentry.Handlers.requestHandler());
+  middlewares() {
+    if (process.env.NODE_ENV === 'production' && configSentry.dsn) {
+      this.app.use(Sentry.Handlers.requestHandler({ serverName: true }));
+    }
+
     this.app.use(helmet());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(AppMiddleware);
+    this.app.use(MorganMiddleware);
     this.app.use(SessionMiddleware);
+    this.app.use(AppMiddleware(this.app));
     this.app.use(HeaderMiddleware);
     this.app.use(MethodOverrideMiddleware);
-    this.app.use(SocketMiddleware(this.socketIo));
+    this.app.use(SocketMiddleware(this.io));
   }
 
-  initDatabase() {
-    Database.connectSequelize();
-    // Database.connectMongoose();
-  }
-
-  initStatic() {
-    this.app.use(express.static(resolve(__dirname, '..', 'public')));
-    this.app.use(
-      '/uploads',
-      express.static(resolve(__dirname, '..', 'tmp', 'uploads'))
-    );
-  }
-
-  initView() {
-    if (config.view.enable) {
-      new View(this.app).init();
-    }
-  }
-
-  initRoutes() {
+  routes() {
     this.app.use(routes);
     this.app.use(RouterMiddleware);
   }
 
-  initException() {
-    if (process.env.NODE_ENV === 'production') {
-      this.app.use(Sentry.Handlers.errorHandler());
-    }
-
-    this.app.use(async (err, req, res, next) => {
-      if (process.env.NODE_ENV !== 'production') {
-        const youch = new Youch(err, req);
-
-        if (req.xhr || req.path.match(/^\/api\//i)) {
-          return res.send(await youch.toJSON());
-        }
-
-        return res.send(await youch.toHTML());
-      }
-
-      return res.status(err.status || 500).json({
-        error: true,
-        message: 'Internal Server Error.',
-        sentry: res.sentry,
-      });
-    });
-  }
-
-  run() {
-    this.server.listen(process.env.PORT || 3333);
+  exception() {
+    this.app.use(ErrorMiddleware(this.app));
   }
 }
 
-export default new App();
+export default new App().server;

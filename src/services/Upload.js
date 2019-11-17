@@ -1,4 +1,8 @@
-import { promises as fs } from 'fs';
+// eslint-disable-next-line no-unused-vars
+import { Express } from 'express';
+import sharp from 'sharp';
+import fs from 'fs';
+import { promisify } from 'util';
 import { basename, dirname, extname } from 'path';
 
 import { uuid } from '../helpers';
@@ -9,95 +13,82 @@ class Upload {
   }
 
   /**
-   * Upload new file
-   *
-   * @param {Object} file
+   * @param {Express.Multer.File} file
    * @param {String} path
    * @param {String} name
-   * @returns {Promise<{file}>}
+   *
+   * @returns {Promise<Express.Multer.File>}
    */
   async file(file, path, name = null) {
-    try {
-      if (!file.buffer) {
-        throw new Error('File passed not valid format multer.');
-      }
-
-      this._validateMimeTypes(file.mimetype);
-      await this._validateFile(file, path, name);
-
-      await fs.writeFile(`${file.path}/${file.name}`, file.buffer);
-
-      return file;
-    } catch (e) {
-      throw e;
+    if (!file.buffer) {
+      throw new Error('File passed not valid format multer.');
     }
+
+    this._validateMimeTypes(file.mimetype);
+    await this._validateFile(file, path, name);
+
+    await promisify(fs.writeFile)(`${file.path}/${file.name}`, file.buffer);
+
+    return file;
   }
 
   /**
-   * @param {Object} file
+   * @param {Express.Multer.File} file
    * @param {String} path
    * @param {String|null} name
    * @param {Number|null} width
    * @param {Number|null} height
    * @param {String|null} format
-   * @returns {Promise<{file}>|boolean}
+   * @returns {Promise<Express.Multer.File>}
    */
   async image(
     file,
     path,
     name = null,
-    width = null,
-    height = null,
+    width = 500,
+    height = 500,
     format = null
   ) {
-    try {
-      const sharp = require('sharp');
-
-      if (typeof sharp !== 'function') {
-        throw new Error(
-          "Upload image require 'https://github.com/lovell/sharp', install to continue."
-        );
-      }
-
-      if (!file.buffer) {
-        throw new Error('File passed not valid format multer.');
-      }
-
-      if (!file.mimetype.match(/image\//gi)) {
-        return false;
-      }
-
-      this._validateMimeTypes(file.mimetype);
-      await this._validateFile(file, path, name);
-
-      const image = sharp(file.buffer);
-      const metadata = await image.metadata();
-
-      width = width || metadata.width;
-      height = height || metadata.height;
-      format = format || metadata.format;
-      format = format === 'jpeg' ? 'jpg' : format;
-
-      await image
-        .resize({
-          width,
-          height,
-          fit: 'inside',
-          withoutEnlargement: true,
-        })
-        .toFormat(format, {})
-        .toFile(
-          `${file.path}/${file.name.replace(file.extension, `.${format}`)}`
-        );
-
-      return file;
-    } catch (e) {
-      throw e;
+    if (!file.buffer) {
+      throw new Error('File passed not valid format multer.');
     }
+
+    if (!file.mimetype.match(/image\//gi)) {
+      throw new Error(
+        `MimeType '${file.mimetype}' not allowed for image upload.`
+      );
+    }
+
+    this._validateMimeTypes(file.mimetype);
+    await this._validateFile(file, path, name);
+
+    const image = sharp(file.buffer);
+    const metadata = await image.metadata();
+
+    // width = width || metadata.width;
+    // height = height || metadata.height;
+    width = width > metadata.width ? metadata.width : width;
+    height = height > metadata.height ? metadata.height : height;
+    format = format || metadata.format;
+    format = format === 'jpeg' ? 'jpg' : format;
+
+    await image
+      .resize(width, height, {
+        width,
+        height,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .toFormat(format, {})
+      .toFile(
+        `${file.path}/${file.name.replace(file.extension, `.${format}`)}`
+      );
+
+    return file;
   }
 
   /**
-   * @param {String|Array} types
+   * @param {String|Array<string>} types
    * @returns {Upload}
    */
   mimeTypes(types = []) {
@@ -115,10 +106,10 @@ class Upload {
   }
 
   /**
-   * @param {Object} file
+   * @param {Express.Multer.File} file
    * @param {String} path
    * @param {String} name
-   * @returns {Promise<{file}>}
+   * @returns {Promise<Express.Multer.File>}
    * @private
    */
   async _validateFile(file, path, name) {
@@ -168,9 +159,9 @@ class Upload {
    */
   async _mkdir(folder) {
     try {
-      await fs.access(folder);
+      await promisify(fs.access)(folder);
     } catch (e) {
-      await fs.mkdir(folder, { recursive: true, mode: 0o755 });
+      await promisify(fs.mkdir)(folder, { recursive: true, mode: 0o755 });
     }
 
     return true;
